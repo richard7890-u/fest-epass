@@ -14,11 +14,13 @@ ADMIN_SECRET_PIN = "1020"
 
 def get_db_connection():
     return mysql.connector.connect(
-        host=os.environ.get('DB_HOST', 'YOUR_AIVEN_HOST_HERE'),
+        host=os.environ.get('DB_HOST'),
         port=int(os.environ.get('DB_PORT', 25123)),
         user=os.environ.get('DB_USER', 'avnadmin'),
-        password=os.environ.get('DB_PASSWORD', 'YOUR_AIVEN_PASSWORD_HERE'),
-        database=os.environ.get('DB_NAME', 'defaultdb')
+        password=os.environ.get('DB_PASSWORD'),
+        database=os.environ.get('DB_NAME', 'defaultdb'),
+        ssl_disabled=False,
+        ssl_verify_cert=False  # Required for Aiven cloud SSL handshake from Render
     )
 
 # ROUTE 1: Issue Passes (Admin Page)
@@ -51,9 +53,7 @@ def admin():
             
             return jsonify({"status": "SUCCESS", "message": "Pass Generated!", "pass_code": pass_code})
         except mysql.connector.Error as err:
-            return jsonify({"status": "ERROR", "message": "Roll number already exists or DB error."}), 400
-
-    return render_template('admin.html')
+            return jsonify({"status": "ERROR", "message": f"DB Error: {str(err)}"}), 400
 
 # ROUTE 2: View E-Pass (Students)
 @app.route('/pass/<pass_code>')
