@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; background: #0a0e17; color: white; text-align: center; padding: 10px; }
+        #reader { max-width: 360px; margin: 0 auto; background: #1e293b; border-radius: 10px; overflow: hidden; }
+        #res { margin-top: 15px; padding: 15px; border-radius: 10px; display: none; font-size: 18px; }
+        .valid { background: #166534; border: 2px solid #22c55e; }
+        .invalid { background: #991b1b; border: 2px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <h2>Gate Entry Scanner</h2>
+    <div id="reader"></div>
+    <div id="res"></div>
+
+    <script>
+        let lock = false;
+        async function onScan(decodedText) {
+            if(lock) return;
+            lock = true;
+            const resDiv = document.getElementById('res');
+            resDiv.style.display = 'block';
+            resDiv.className = '';
+            resDiv.innerHTML = "Verifying...";
+
+            try {
+                const response = await fetch(decodedText);
+                const data = await response.json();
+                if(response.ok && data.status === 'VALID') {
+                    resDiv.className = 'valid';
+                    resDiv.innerHTML = `✅ ACCESS GRANTED<br><strong>${data.student_name}</strong><br>Roll: ${data.roll_number}<br>${data.department} (Sem ${data.semester})`;
+                } else {
+                    resDiv.className = 'invalid';
+                    resDiv.innerHTML = `❌ ENTRY DENIED<br>${data.message}`;
+                }
+            } catch(e) {
+                resDiv.className = 'invalid';
+                resDiv.innerHTML = "❌ Invalid QR Code";
+            }
+            setTimeout(() => { lock = false; }, 3000);
+        }
+        const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
+        scanner.render(onScan);
+    </script>
+</body>
+</html>

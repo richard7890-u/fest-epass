@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freshers E-Pass</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
+        .card { background: #1e293b; max-width: 350px; width: 100%; border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #3b82f6; }
+        .qr-box { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin: 15px 0; }
+        .qr-box img { width: 180px; height: 180px; }
+        .info { text-align: left; background: #0f172a; padding: 12px; border-radius: 8px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>OFFICIAL ENTRY PASS</h3>
+        <div class="qr-box">
+            <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR Code">
+        </div>
+        <div class="info">
+            <p><strong>Name:</strong> {{ ticket.student_name }}</p>
+            <p><strong>Roll No:</strong> {{ ticket.roll_number }}</p>
+            <p><strong>Dept:</strong> {{ ticket.department }} (Sem {{ ticket.semester }})</p>
+            <p><strong>Status:</strong> <span style="color:#4ade80;">PAID ({{ ticket.payment_mode }})</span></p>
+        </div>
+    </div>
+</body>
+</html>

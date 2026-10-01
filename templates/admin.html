@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue E-Pass</title>
+    <style>
+        body { font-family: sans-serif; background: #f1f5f9; padding: 20px; }
+        .box { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 10px; margin-top: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #2563eb; color: white; font-weight: bold; border: none; cursor: pointer; }
+        #res { margin-top: 15px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Issue Freshers E-Pass</h2>
+        <form id="pForm">
+            <input type="password" name="admin_pin" placeholder="Enter Admin Secret PIN" required>
+            <input type="text" name="student_name" placeholder="Student Name" required>
+            <input type="text" name="roll_number" placeholder="Roll Number" required>
+            <input type="text" name="department" placeholder="Department (e.g. BCA)" required>
+            <input type="text" name="semester" placeholder="Semester (e.g. 1)" required>
+            <select name="payment_mode">
+                <option value="OFFLINE">Offline Cash</option>
+                <option value="ONLINE">Online UPI</option>
+            </select>
+            <button type="submit">Generate Pass</button>
+        </form>
+        <div id="res"></div>
+    </div>
+    <script>
+        document.getElementById('pForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const resDiv = document.getElementById('res');
+            resDiv.innerHTML = "Generating...";
+            const formData = new FormData(e.target);
+            const res = await fetch('/admin', { method: 'POST', body: formData });
+            const data = await res.json();
+            if(data.status === 'SUCCESS') {
+                const passUrl = `${window.location.origin}/pass/${data.pass_code}`;
+                resDiv.innerHTML = `<p style="color:green;font-weight:bold;">Pass Created!</p><a href="${passUrl}" target="_blank">Click to Open Pass</a>`;
+            } else {
+                resDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
