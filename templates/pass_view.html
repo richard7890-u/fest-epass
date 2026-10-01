@@ -7,17 +7,23 @@
     <style>
         body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
         .card { background: #1e293b; max-width: 350px; width: 100%; border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #3b82f6; }
-        .qr-box { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin: 15px 0; }
+        .qr-box { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin: 15px 0 5px 0; }
         .qr-box img { width: 180px; height: 180px; }
+        .ticket-id { font-family: monospace; font-size: 14px; color: #93c5fd; letter-spacing: 1px; margin-bottom: 15px; }
         .info { text-align: left; background: #0f172a; padding: 12px; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="card">
         <h3>OFFICIAL ENTRY PASS</h3>
+        
         <div class="qr-box">
             <img src="data:image/png;base64,{{ qr_b64 }}" alt="QR Code">
         </div>
+        
+        <!-- Displays a short 8-character unique alphanumeric Ticket ID -->
+        <div class="ticket-id">PASS ID: #{{ ticket.pass_code[:8]|upper }}</div>
+
         <div class="info">
             <p><strong>Name:</strong> {{ ticket.student_name }}</p>
             <p><strong>Roll No:</strong> {{ ticket.roll_number }}</p>
