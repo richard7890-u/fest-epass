@@ -10,7 +10,7 @@ import mysql.connector
 app = Flask(__name__)
 
 # Security PIN for Admin Page (Change this to whatever secret code you want)
-ADMIN_SECRET_PIN = "1234"
+ADMIN_SECRET_PIN = "1020"
 
 def get_db_connection():
     return mysql.connector.connect(
