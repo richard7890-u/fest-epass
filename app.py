@@ -19,8 +19,7 @@ def get_db_connection():
         user=os.environ.get('DB_USER', 'avnadmin'),
         password=os.environ.get('DB_PASSWORD'),
         database=os.environ.get('DB_NAME', 'defaultdb'),
-        ssl_disabled=False,
-        ssl_verify_cert=False  # Required for Aiven cloud SSL handshake from Render
+        ssl_disabled=False
     )
 
 # ROUTE 1: Issue Passes (Admin Page)
