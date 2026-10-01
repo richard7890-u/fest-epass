@@ -9,7 +9,7 @@ import mysql.connector
 
 app = Flask(__name__)
 
-# Security PIN for Admin Page (Change this to whatever secret code you want)
+# Security PIN for Admin Page
 ADMIN_SECRET_PIN = "1020"
 
 def get_db_connection():
@@ -21,6 +21,11 @@ def get_db_connection():
         database=os.environ.get('DB_NAME', 'defaultdb'),
         ssl_disabled=False
     )
+
+# ROUTE 0: Root Redirect to Admin Page
+@app.route('/')
+def home():
+    return render_template('admin.html')
 
 # ROUTE 1: Issue Passes (Admin Page)
 @app.route('/admin', methods=['GET', 'POST'])
@@ -49,10 +54,13 @@ def admin():
             conn.commit()
             cursor.close()
             conn.close()
-            
+
             return jsonify({"status": "SUCCESS", "message": "Pass Generated!", "pass_code": pass_code})
         except mysql.connector.Error as err:
             return jsonify({"status": "ERROR", "message": f"DB Error: {str(err)}"}), 400
+
+    # FIX: Explicitly render admin.html on GET request
+    return render_template('admin.html')
 
 # ROUTE 2: View E-Pass (Students)
 @app.route('/pass/<pass_code>')
