@@ -4,25 +4,26 @@ import qrcode
 import io
 import base64
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from flask import Flask, render_template, request, jsonify
 import mysql.connector
 
 app = Flask(__name__)
 
-# Security PIN for Admin Page
+# Security PIN for Admin Page (Change this to your preferred PIN)
 ADMIN_SECRET_PIN = "1020"
 
 def get_db_connection():
     return mysql.connector.connect(
         host=os.environ.get('DB_HOST'),
-        port=int(os.environ.get('DB_PORT', 25123)),
+        port=int(os.environ.get('DB_PORT', 25978)),
         user=os.environ.get('DB_USER', 'avnadmin'),
         password=os.environ.get('DB_PASSWORD'),
         database=os.environ.get('DB_NAME', 'defaultdb'),
         ssl_disabled=False
     )
 
-# ROUTE 0: Root Redirect to Admin Page
+# ROUTE 0: Home Page Redirect
 @app.route('/')
 def home():
     return render_template('admin.html')
@@ -59,7 +60,6 @@ def admin():
         except mysql.connector.Error as err:
             return jsonify({"status": "ERROR", "message": f"DB Error: {str(err)}"}), 400
 
-    # FIX: Explicitly render admin.html on GET request
     return render_template('admin.html')
 
 # ROUTE 2: View E-Pass (Students)
@@ -102,18 +102,22 @@ def verify_pass(pass_code):
             return jsonify({"status": "INVALID", "message": "FAKE / UNREGISTERED PASS!"}), 404
 
         if ticket['is_used'] == 1:
-            scanned_time = ticket['scanned_at'].strftime('%I:%M %p')
+            # Convert stored timestamp to IST for display
+            scanned_time_utc = ticket['scanned_at'].replace(tzinfo=ZoneInfo("UTC"))
+            scanned_time_ist = scanned_time_utc.astimezone(ZoneInfo("Asia/Kolkata"))
+            scanned_time_formatted = scanned_time_ist.strftime('%I:%M %p')
+
             cursor.close()
             conn.close()
             return jsonify({
                 "status": "ALREADY_USED",
-                "message": f"ENTRY DENIED! Already scanned today at {scanned_time}",
+                "message": f"ENTRY DENIED! Already scanned today at {scanned_time_formatted}",
                 "student_name": ticket['student_name']
             }), 400
 
-        # Mark ticket as used
-        now = datetime.now()
-        cursor.execute("UPDATE tickets SET is_used = 1, scanned_at = %s WHERE pass_code = %s", (now, pass_code))
+        # Record exact scan time in IST
+        now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+        cursor.execute("UPDATE tickets SET is_used = 1, scanned_at = %s WHERE pass_code = %s", (now_ist, pass_code))
         conn.commit()
         cursor.close()
         conn.close()
