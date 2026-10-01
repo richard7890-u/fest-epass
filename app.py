@@ -10,7 +10,7 @@ import mysql.connector
 
 app = Flask(__name__)
 
-# Security PIN for Admin Page (Change this to your preferred PIN)
+# Security PIN for Admin Page
 ADMIN_SECRET_PIN = "1020"
 
 def get_db_connection():
@@ -43,15 +43,16 @@ def admin():
         payment_mode = request.form.get('payment_mode', 'OFFLINE')
 
         pass_code = str(uuid.uuid4())
+        created_at_ist = datetime.now(ZoneInfo("Asia/Kolkata"))  # Explicit IST timestamp
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
             query = """
-                INSERT INTO tickets (roll_number, student_name, semester, department, payment_mode, pass_code)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO tickets (roll_number, student_name, semester, department, payment_mode, pass_code, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (roll_number, student_name, semester, department, payment_mode, pass_code))
+            cursor.execute(query, (roll_number, student_name, semester, department, payment_mode, pass_code, created_at_ist))
             conn.commit()
             cursor.close()
             conn.close()
